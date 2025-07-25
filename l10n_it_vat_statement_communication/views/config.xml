@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<flectra>
+
+    <record id="view_vat_statement_communication_company_form" model="ir.ui.view">
+        <field name="name">view_vat_statement_communication_company_form</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='vat']" position="after">
+                <field name="vsc_supply_code" placeholder="IVP18" />
+            </xpath>
+        </field>
+    </record>
+
+</flectra>

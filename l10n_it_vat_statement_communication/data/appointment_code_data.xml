@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<flectra>
+    <data noupdate="1">
+        
+        <!-- Dati iniziali per i codici carica -->
+        <record id="appointment_code_1" model="appointment.code">
+            <field name="code">1</field>
+            <field name="name">Rappresentante legale</field>
+            <field name="description">Rappresentante legale della società</field>
+        </record>
+        
+        <record id="appointment_code_2" model="appointment.code">
+            <field name="code">2</field>
+            <field name="name">Rappresentante di minore</field>
+            <field name="description">Rappresentante di minore, di interdetto o inabilitato</field>
+        </record>
+        
+        <record id="appointment_code_3" model="appointment.code">
+            <field name="code">3</field>
+            <field name="name">Curatore fallimentare</field>
+            <field name="description">Curatore fallimentare o commissario liquidatore</field>
+        </record>
+        
+        <record id="appointment_code_4" model="appointment.code">
+            <field name="code">4</field>
+            <field name="name">Commissario straordinario</field>
+            <field name="description">Commissario straordinario e straordinario di società</field>
+        </record>
+        
+        <record id="appointment_code_5" model="appointment.code">
+            <field name="code">5</field>
+            <field name="name">Rappresentante negoziale</field>
+            <field name="description">Rappresentante per disposizioni negoziali</field>
+        </record>
+        
+        <record id="appointment_code_6" model="appointment.code">
+            <field name="code">6</field>
+            <field name="name">Erede</field>
+            <field name="description">Erede</field>
+        </record>
+        
+        <record id="appointment_code_7" model="appointment.code">
+            <field name="code">7</field>
+            <field name="name">Rappresentante di eredità giacente</field>
+            <field name="description">Rappresentante di eredità giacente</field>
+        </record>
+        
+        <record id="appointment_code_8" model="appointment.code">
+            <field name="code">8</field>
+            <field name="name">Altro tipo di rappresentanza</field>
+            <field name="description">Altro tipo di rappresentanza</field>
+        </record>
+        
+        <record id="appointment_code_9" model="appointment.code">
+            <field name="code">9</field>
+            <field name="name">Soggetto tenuto alla comunicazione</field>
+            <field name="description">Soggetto obbligato alla comunicazione per conto del contribuente</field>
+        </record>
+        
+    </data>
+</flectra>
