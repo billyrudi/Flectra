@@ -1,5 +1,4 @@
-
-WIZARD_VIEW_XML = """<?xml version="1.0" ?>
+<?xml version="1.0" ?>
 <flectra>
 
     <record id="view_comunicazione_liquidazione_import_wizard" model="ir.ui.view">
@@ -21,8 +20,8 @@ WIZARD_VIEW_XML = """<?xml version="1.0" ?>
                     </group>
                 </group>
                 
-                <group string="Select Periods to Import" invisible="create_all_periods">
-                    <group string="Months" invisible="period_type != 'month'">
+                <group string="Select Periods to Import" attrs="{'invisible': [('create_all_periods', '=', True)]}">
+                    <group string="Months" attrs="{'invisible': [('period_type', '!=', 'month')]}">
                         <field name="month_1" />
                         <field name="month_2" />
                         <field name="month_3" />
@@ -37,7 +36,7 @@ WIZARD_VIEW_XML = """<?xml version="1.0" ?>
                         <field name="month_12" />
                     </group>
                     
-                    <group string="Quarters" invisible="period_type != 'quarter'">
+                    <group string="Quarters" attrs="{'invisible': [('period_type', '!=', 'quarter')]}">
                         <field name="quarter_1" />
                         <field name="quarter_2" />
                         <field name="quarter_3" />
@@ -73,4 +72,4 @@ WIZARD_VIEW_XML = """<?xml version="1.0" ?>
         <field name="target">new</field>
     </record>
 
-</flectra>"""
+</flectra>

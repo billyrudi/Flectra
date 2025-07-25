@@ -1,4 +1,4 @@
-UPDATED_VIEW_XML = """<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <flectra>
 
     <record id="view_comunicazione_liquidazione_tree" model="ir.ui.view">
@@ -18,38 +18,78 @@ UPDATED_VIEW_XML = """<?xml version="1.0" encoding="utf-8" ?>
         <field name="name">comunicazione.liquidazione.form</field>
         <field name="model">comunicazione.liquidazione</field>
         <field name="arch" type="xml">
-            <form string="Statement communication">
+            <form string="VAT Statement Communication">
                 <header>
                     <button name="action_import_from_invoices" 
                             string="🚀 Import from Invoices" 
                             type="object" 
-                            class="btn-primary"
-                            help="Automatically import VAT data from invoices"/>
+                            class="oe_highlight"
+                            attrs="{'invisible': [('year', '=', False)]}"
+                            help="Automatically import VAT data from posted invoices"/>
+                    <button name="%(action_liquidazione_export_file)d" 
+                            string="📤 Export XML" 
+                            type="action" 
+                            class="btn-secondary"
+                            attrs="{'invisible': [('quadri_vp_ids', '=', [])]}"
+                            help="Export VAT communication XML file"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
                         <button class="oe_stat_button" type="object" 
                                 name="action_import_from_invoices" 
-                                icon="fa-download">
+                                icon="fa-download"
+                                attrs="{'invisible': [('year', '=', False)]}">
                             <div class="o_stat_info">
                                 <span class="o_stat_text">Auto Import</span>
+                                <span class="o_stat_value">Invoices</span>
                             </div>
                         </button>
+                        <button class="oe_stat_button" type="object" 
+                                name="action_view_vp_summary" 
+                                icon="fa-table"
+                                attrs="{'invisible': [('quadri_vp_ids', '=', [])]}">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">VP Tables</span>
+                                <span class="o_stat_value"><field name="vp_count"/></span>
+                            </div>
+                        </button>
+                    </div>
+                    
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Communication Name"/>
+                        </h1>
                     </div>
                     
                     <group name="company">
                         <group>
                             <field name="company_id" widget="selection" />
+                            <field name="year" />
                         </group>
                         <group>
                             <field name="identificativo" />
+                            <field name="vp_count" invisible="1"/>
                         </group>
                     </group>
-                    <newline />
+                    
+                    <!-- ALERT INFO SENZA ANNO -->
+                    <div class="alert alert-info" role="alert" attrs="{'invisible': [('year', '!=', False)]}">
+                        <h4>📋 Getting Started</h4>
+                        <p><strong>Step 1:</strong> Select a company and specify the tax year above</p>
+                        <p><strong>Step 2:</strong> Use "Import from Invoices" to automatically populate VP data</p>
+                        <p><strong>Step 3:</strong> Review and adjust the imported data as needed</p>
+                        <p><strong>Step 4:</strong> Export the XML file for submission</p>
+                    </div>
+                    
+                    <!-- ALERT SUCCESS CON ANNO -->
+                    <div class="alert alert-success" role="alert" attrs="{'invisible': [('year', '=', False)]}">
+                        <h4>✅ Ready for Import</h4>
+                        <p>Click the <strong>"🚀 Import from Invoices"</strong> button above to automatically import VAT data from your posted invoices for year <field name="year" readonly="1"/>.</p>
+                    </div>
+                    
                     <notebook>
                         <page string="Frontispiece" name="frontespizio">
                             <group string="General data" name="dati_generali">
-                                <field name="year" />
                                 <field name="declarant_different" />
                             </group>
                             <newline />
@@ -61,9 +101,9 @@ UPDATED_VIEW_XML = """<?xml version="1.0" encoding="utf-8" ?>
                                     <field name="last_month" />
                                     <field name="liquidazione_del_gruppo" />
                                 </group>
-                                <group string="Declarant" name="dichiarante" invisible="not declarant_different">
-                                    <field name="declarant_fiscalcode" required="declarant_different" />
-                                    <field name="codice_carica_id" required="declarant_different" />
+                                <group string="Declarant" name="dichiarante" attrs="{'invisible': [('declarant_different', '=', False)]}">
+                                    <field name="declarant_fiscalcode" attrs="{'required': [('declarant_different', '=', True)]}" />
+                                    <field name="codice_carica_id" attrs="{'required': [('declarant_different', '=', True)]}" />
                                     <field name="declarant_fiscalcode_company" />
                                 </group>
                             </group>
@@ -74,27 +114,117 @@ UPDATED_VIEW_XML = """<?xml version="1.0" encoding="utf-8" ?>
                             <group string="Telematic communication commitment" name="impegno_presentazione">
                                 <group>
                                     <field name="delegate_fiscalcode" />
-                                    <field name="delegate_commitment" required="delegate_fiscalcode" />
-                                    <field name="date_commitment" required="delegate_fiscalcode" />
+                                    <field name="delegate_commitment" attrs="{'required': [('delegate_fiscalcode', '!=', False)]}" />
+                                    <field name="date_commitment" attrs="{'required': [('delegate_fiscalcode', '!=', False)]}" />
                                     <field name="delegate_sign" />
                                 </group>
                             </group>
                         </page>
-                        <page string="VP table" name="quadro_vp">
-                            <div class="alert alert-info" role="alert">
-                                <strong>💡 Tip:</strong> Use the "Import from Invoices" button to automatically populate VP tables with data from your invoices!
+                        <page string="VP Tables" name="quadro_vp">
+                            <!-- HELP SECTION -->
+                            <div class="alert alert-info" role="alert" attrs="{'invisible': [('quadri_vp_ids', '!=', [])]}">
+                                <h4>💡 How to use VP Tables</h4>
+                                <ul>
+                                    <li><strong>Automatic:</strong> Use "Import from Invoices" button to auto-populate all VP tables</li>
+                                    <li><strong>Manual:</strong> Create VP records manually and use "Import This Period" on each record</li>
+                                    <li><strong>Review:</strong> Always review imported data before exporting XML</li>
+                                </ul>
                             </div>
-                            <field name="quadri_vp_ids">
-                                <tree>
+                            
+                            <field name="quadri_vp_ids" context="{'default_comunicazione_id': active_id}">
+                                <tree decoration-success="iva_da_versare > 0" decoration-info="iva_a_credito > 0">
                                     <field name="period_type" />
-                                    <field name="month" />
-                                    <field name="quarter" />
-                                    <field name="imponibile_operazioni_attive" />
-                                    <field name="iva_esigibile" />
-                                    <field name="iva_detratta" />
-                                    <field name="iva_da_versare" />
-                                    <field name="iva_a_credito" />
+                                    <field name="month" attrs="{'column_invisible': [('parent.period_type', '!=', 'month')]}"/>
+                                    <field name="quarter" attrs="{'column_invisible': [('parent.period_type', '!=', 'quarter')]}"/>
+                                    <field name="imponibile_operazioni_attive" sum="Total Active"/>
+                                    <field name="imponibile_operazioni_passive" sum="Total Passive"/>
+                                    <field name="iva_esigibile" sum="Total Due"/>
+                                    <field name="iva_detratta" sum="Total Deductible"/>
+                                    <field name="iva_da_versare" sum="Total To Pay"/>
+                                    <field name="iva_a_credito" sum="Total Credit"/>
+                                    <button name="action_import_from_invoices_single" 
+                                            string="📊 Import" 
+                                            type="object" 
+                                            class="btn-link"
+                                            help="Import data for this period only"/>
                                 </tree>
+                                <form>
+                                    <header>
+                                        <button name="action_import_from_invoices_single" 
+                                                string="📊 Import This Period" 
+                                                type="object" 
+                                                class="oe_highlight"
+                                                help="Import VAT data for this specific period"/>
+                                    </header>
+                                    <sheet>
+                                        <group string="Reference period" name="periodo">
+                                            <group>
+                                                <field name="period_type" />
+                                                <field name="month" attrs="{'invisible': [('period_type', '!=', 'month')], 'required': [('period_type', '==', 'month')]}" />
+                                                <field name="quarter" attrs="{'invisible': [('period_type', '!=', 'quarter')], 'required': [('period_type', '==', 'quarter')]}" />
+                                            </group>
+                                            <group>
+                                                <field name="subcontracting" />
+                                                <field name="exceptional_events" />
+                                            </group>
+                                        </group>
+                                        <newline />
+                                        <group string="Tax statement" name="liquidazione_imposta" col="3">
+                                            <separator colspan="3" string="VP2 - Active operations total (without VAT)" />
+                                            <field name="imponibile_operazioni_attive" />
+                                            <label string="" />
+
+                                            <separator colspan="3" string="VP3 - Passive operations total (without VAT)" />
+                                            <label string="" />
+                                            <field name="imponibile_operazioni_passive" />
+
+                                            <separator colspan="3" string="VP4 - Due VAT" />
+                                            <field name="iva_esigibile" />
+                                            <label string="" />
+
+                                            <separator colspan="3" string="VP5 - Deducted VAT" />
+                                            <label string="" />
+                                            <field name="iva_detratta" />
+
+                                            <separator colspan="3" string="VP6 - Debit VAT (computed)" />
+                                            <field name="iva_dovuta_debito" readonly="1"/>
+                                            <field name="iva_dovuta_credito" readonly="1"/>
+
+                                            <separator colspan="3" string="VP7 - Previous period debit, not greater than 25,82 €" />
+                                            <field name="debito_periodo_precedente" />
+                                            <label string="" />
+
+                                            <separator colspan="3" string="VP8 - Previous period credit" />
+                                            <label string="" />
+                                            <field name="credito_periodo_precedente" />
+
+                                            <separator colspan="3" string="VP9 - Previous year credit" />
+                                            <label string="" />
+                                            <field name="credito_anno_precedente" />
+
+                                            <separator colspan="3" string="VP10 - Auto UE payments" />
+                                            <label string="" />
+                                            <field name="versamento_auto_UE" />
+
+                                            <separator colspan="3" string="VP11 - Tax credits" />
+                                            <label string="" />
+                                            <field name="crediti_imposta" />
+
+                                            <separator colspan="3" string="VP12 - Due interests for quarterly statements" />
+                                            <field name="interessi_dovuti" />
+                                            <label string="" />
+
+                                            <separator colspan="3" string="VP13 - Due down payment" />
+                                            <field name="metodo_calcolo_acconto" attrs="{'required': [('accounto_dovuto', '!=', 0)]}" />
+                                            <field name="accounto_dovuto" />
+
+                                            <separator colspan="3" string="VP14 - VAT to pay (computed)" />
+                                            <field name="iva_da_versare" readonly="1"/>
+                                            <field name="iva_a_credito" readonly="1"/>
+
+                                        </group>
+                                    </sheet>
+                                </form>
                             </field>
                         </page>
                     </notebook>
@@ -107,115 +237,27 @@ UPDATED_VIEW_XML = """<?xml version="1.0" encoding="utf-8" ?>
         </field>
     </record>
 
-    <record id="view_comunicazione_liquidazione_vp_form" model="ir.ui.view">
-        <field name="name">comunicazione.liquidazione.vp.form</field>
-        <field name="model">comunicazione.liquidazione.vp</field>
-        <field name="arch" type="xml">
-            <form string="VP table">
-                <header>
-                    <button name="action_import_from_invoices_single" 
-                            string="📊 Import This Period" 
-                            type="object" 
-                            class="btn-secondary"
-                            help="Import VAT data for this specific period"/>
-                </header>
-                <sheet>
-                    <group string="Reference period" name="periodo">
-                        <group>
-                            <field name="period_type" />
-                            <field name="month" invisible="period_type != 'month'" required="period_type == 'month'" />
-                            <field name="quarter" invisible="period_type != 'quarter'" required="period_type == 'quarter'" />
-                        </group>
-                        <group>
-                            <field name="subcontracting" />
-                            <field name="exceptional_events" />
-                        </group>
-                    </group>
-                    <newline />
-                    <group string="Tax statement" name="liquidazione_imposta" col="3">
-                        <hr colspan="3" />
-                        <group><div><b>VP2</b> Active operations total (without VAT)</div></group>
-                        <group><field name="imponibile_operazioni_attive" nolabel="1" /></group>
-                        <group><div /></group>
-
-                        <hr colspan="3" />
-                        <group><div><b>VP3</b> Passive operations total (without VAT)</div></group>
-                        <group><div /></group>
-                        <group><field name="imponibile_operazioni_passive" nolabel="1" /></group>
-
-                        <hr colspan="3" />
-                        <group><div><b>VP4</b> Due VAT</div></group>
-                        <group><field name="iva_esigibile" nolabel="1" /></group>
-                        <group />
-
-                        <hr colspan="3" />
-                        <group><div><b>VP5</b> Deducted VAT</div></group>
-                        <group />
-                        <group><field name="iva_detratta" nolabel="1" /></group>
-
-                        <hr colspan="3" />
-                        <group><div><b>VP6</b> Debit VAT</div></group>
-                        <group><field name="iva_dovuta_debito" nolabel="1" /></group>
-                        <group><span> or credit</span> <field name="iva_dovuta_credito" nolabel="1" /></group>
-
-                        <hr colspan="3" />
-                        <group><div><b>VP7</b> Previous period debit, not greater than 25,82 €</div></group>
-                        <group><field name="debito_periodo_precedente" nolabel="1" /></group>
-                        <group />
-
-                        <hr colspan="3" />
-                        <group><div><b>VP8</b> Previous period credit</div></group>
-                        <group />
-                        <group><field name="credito_periodo_precedente" nolabel="1" /></group>
-
-                        <hr colspan="3" />
-                        <group><div><b>VP9</b> Previous year credit</div></group>
-                        <group />
-                        <group><field name="credito_anno_precedente" nolabel="1" /></group>
-
-                        <hr colspan="3" />
-                        <group><div><b>VP10</b> Auto UE payments</div></group>
-                        <group />
-                        <group><field name="versamento_auto_UE" nolabel="1" /></group>
-
-                        <hr colspan="3" />
-                        <group><div><b>VP11</b> Tax credits</div></group>
-                        <group />
-                        <group><field name="crediti_imposta" nolabel="1" /></group>
-
-                        <hr colspan="3" />
-                        <group><div><b>VP12</b> Due interests for quarterly statements</div></group>
-                        <group><field name="interessi_dovuti" nolabel="1" /></group>
-                        <group />
-
-                        <hr colspan="3" />
-                        <group><div><b>VP13</b> Due down payment</div></group>
-                        <group><div invisible="accounto_dovuto == 0"><span>Computation method: </span><field required="accounto_dovuto != 0" name="metodo_calcolo_acconto" nolabel="1" class="oe_inline" /></div></group>
-                        <group><field name="accounto_dovuto" nolabel="1" /></group>
-
-                        <hr colspan="3" />
-                        <group><div><b>VP14</b> VAT to pay</div></group>
-                        <group><field name="iva_da_versare" nolabel="1" /></group>
-                        <group><span> or credit</span> <field name="iva_a_credito" nolabel="1" /></group>
-
-                    </group>
-                </sheet>
-            </form>
-        </field>
-    </record>
-
     <record id="action_comunicazione_liquidazione" model="ir.actions.act_window">
-        <field name="name">VAT statement communication</field>
+        <field name="name">VAT Statement Communication</field>
         <field name="res_model">comunicazione.liquidazione</field>
+        <field name="view_mode">tree,form</field>
         <field name="view_id" ref="view_comunicazione_liquidazione_tree" />
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first VAT Statement Communication
+            </p>
+            <p>
+                Import VAT data automatically from your posted invoices and generate XML files for tax authorities.
+            </p>
+        </field>
     </record>
 
     <menuitem
         id="menu_comunicazione_liquidazione"
-        name="VAT statement communication"
+        name="VAT Statement Communication"
         action="action_comunicazione_liquidazione"
         parent="account.menu_finance_entries"
         sequence="50"
     />
 
-</flectra>"""
+</flectra>

@@ -1,7 +1,6 @@
-
-UPDATED_SECURITY = """id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_comunicazione_liquidazione,comunicazione.liquidazione,model_comunicazione_liquidazione,account.group_account_user,1,1,1,1
 access_comunicazione_liquidazione_vp,comunicazione.liquidazione.vp,model_comunicazione_liquidazione_vp,account.group_account_user,1,1,1,1
 access_appointment_code,appointment.code,model_appointment_code,account.group_account_user,1,1,1,1
 access_comunicazione_liquidazione_export_file,comunicazione.liquidazione.export.file,model_comunicazione_liquidazione_export_file,account.group_account_user,1,1,1,1
-access_comunicazione_liquidazione_import_wizard,comunicazione.liquidazione.import.wizard,model_comunicazione_liquidazione_import_wizard,account.group_account_user,1,1,1,1"""
+access_comunicazione_liquidazione_import_wizard,comunicazione.liquidazione.import.wizard,model_comunicazione_liquidazione_import_wizard,account.group_account_user,1,1,1,1
